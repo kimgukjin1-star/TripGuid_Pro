@@ -1,0 +1,89 @@
+/* 커스텀 폰트 정의 */
+
+/* Pretendard */
+@font-face {
+    font-family: 'Pretendard';
+    src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Pretendard';
+    src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Medium.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Pretendard';
+    src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Bold.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+}
+
+/* 나눔스퀘어 */
+@font-face {
+    font-family: 'NanumSquare';
+    src: url('https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css');
+    font-weight: 400;
+    font-style: normal;
+}
+
+/* 나눔명조 */
+@font-face {
+    font-family: 'NanumMyeongjo';
+    src: url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap');
+    font-weight: 400;
+    font-style: normal;
+}
+
+/* 배달의민족 주아 */
+@font-face {
+    font-family: 'BMJUA';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* 레시피코리아 */
+@font-face {
+    font-family: 'RecipekoreaR';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/Recipekorea.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* SandollGothic */
+@font-face {
+    font-family: 'SBAggroB';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SBAggroB.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Gmarket Sans */
+@font-face {
+    font-family: 'GmarketSans';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* 이롭게 바탕체 */
+@font-face {
+    font-family: 'EBS';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/EBSHMJEOTGothic.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* 폰트 클래스 */
+.font-pretendard { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
+.font-nanumsquare { font-family: 'NanumSquare', sans-serif; }
+.font-nanummyeongjo { font-family: 'NanumMyeongjo', serif; }
+.font-bmjua { font-family: 'BMJUA', sans-serif; }
+.font-recipekorea { font-family: 'RecipekoreaR', sans-serif; }
+.font-sandoll { font-family: 'SBAggroB', sans-serif; }
+.font-gmarket { font-family: 'GmarketSans', sans-serif; }
+.font-ebs { font-family: 'EBS', serif; }

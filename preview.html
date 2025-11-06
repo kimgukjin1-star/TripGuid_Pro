@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>골프 여행 안내문 미리보기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="fonts/custom-fonts.css">
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .preview-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 3rem;
+        }
+        .section-box {
+            background: #f8f9fa;
+            border-left: 4px solid;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+        .section-box.purple { border-color: #667eea; }
+        .section-box.blue { border-color: #3b82f6; }
+        .section-box.green { border-color: #10b981; }
+        .section-box.sky { border-color: #0ea5e9; }
+        .section-box.orange { border-color: #f59e0b; }
+        .section-box.pink { border-color: #ec4899; }
+        
+        .header-section {
+            text-align: center;
+            padding: 2rem 0;
+            border-bottom: 3px solid #667eea;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        .header-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.3;
+            border-radius: 12px;
+        }
+        
+        .share-buttons {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            padding: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            z-index: 1000;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        @media print {
+            .share-buttons, .no-print {
+                display: none !important;
+            }
+            body {
+                background: white;
+            }
+            .preview-card {
+                box-shadow: none;
+                margin: 0;
+            }
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #4b5563;
+        }
+        
+        .info-value {
+            color: #1f2937;
+        }
+        
+        /* Quill 에디터 콘텐츠 스타일 */
+        .ql-editor-content {
+            line-height: 1.6;
+        }
+        .ql-editor-content p {
+            margin-bottom: 0.5rem;
+        }
+        .ql-editor-content strong {
+            font-weight: bold;
+        }
+        .ql-editor-content em {
+            font-style: italic;
+        }
+        .ql-editor-content u {
+            text-decoration: underline;
+        }
+        .ql-editor-content s {
+            text-decoration: line-through;
+        }
+        .ql-editor-content h1 {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .ql-editor-content h2 {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .ql-editor-content h3 {
+            font-size: 1.25em;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .ql-editor-content ul, .ql-editor-content ol {
+            margin-left: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .ql-editor-content ul {
+            list-style-type: disc;
+        }
+        .ql-editor-content ol {
+            list-style-type: decimal;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-card" id="previewContent">
+        <div class="header-section">
+            <div class="text-6xl mb-4 text-purple-600">
+                <i class="fas fa-golf-ball"></i>
+            </div>
+            <h1 id="title" class="text-4xl font-bold text-gray-800 mb-2"></h1>
+            <p id="period" class="text-xl text-gray-600"></p>
+            <div id="titleImage" class="mt-4"></div>
+        </div>
+
+        <div id="contentArea"></div>
+    </div>
+
+    <div class="share-buttons no-print">
+        <button onclick="window.print()" class="btn btn-primary">
+            <i class="fas fa-print mr-2"></i>인쇄하기
+        </button>
+        <button onclick="goBack()" class="btn btn-secondary">
+            <i class="fas fa-edit mr-2"></i>수정하기
+        </button>
+        <button onclick="copyLink()" class="btn btn-secondary">
+            <i class="fas fa-link mr-2"></i>링크 복사
+        </button>
+        <button onclick="saveAsImage()" class="btn btn-primary">
+            <i class="fas fa-image mr-2"></i>고해상도 이미지 저장
+        </button>
+    </div>
+
+    <script>
+        console.log('미리보기 페이지 로드 시작...');
+        
+        // URL에서 데이터 가져오기
+        function getDataFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
+            const compressedData = urlParams.get('data');
+            
+            console.log('모드:', mode);
+            console.log('URL 데이터:', compressedData ? '있음' : '없음');
+            
+            let data = null;
+            
+            if (mode === 'local' || !compressedData) {
+                // localStorage에서 가져오기
+                const storedData = localStorage.getItem('golfTripData');
+                console.log('localStorage 데이터:', storedData ? '있음' : '없음');
+                if (storedData) {
+                    data = JSON.parse(storedData);
+                }
+            } else {
+                // URL에서 압축 해제
+                try {
+                    const decompressed = LZString.decompressFromEncodedURIComponent(compressedData);
+                    data = JSON.parse(decompressed);
+                    console.log('URL 데이터 압축 해제 성공');
+                } catch (error) {
+                    console.error('URL 데이터 압축 해제 실패:', error);
+                }
+            }
+            
+            return data;
+        }
+        
+        // 데이터 렌더링
+        function renderData(data) {
+            if (!data) {
+                document.getElementById('contentArea').innerHTML = `
+                    <div class="section-box pink">
+                        <h2 class="text-xl font-bold text-red-600 mb-2">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>데이터를 불러올 수 없습니다
+                        </h2>
+                        <p class="text-gray-700">안내문 작성 페이지에서 다시 시도해주세요.</p>
+                        <button onclick="goBack()" class="btn btn-primary mt-4">
+                            <i class="fas fa-arrow-left mr-2"></i>작성 페이지로 돌아가기
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            console.log('렌더링할 데이터:', data);
+            
+            // 타이틀 디자인 적용
+            const titleElement = document.getElementById('title');
+            titleElement.textContent = data.title || '골프 여행 안내문';
+            
+            // 타이틀 폰트 적용
+            if (data.titleFont) {
+                titleElement.style.fontFamily = data.titleFont;
+            }
+            
+            // 타이틀 색상 적용
+            if (data.titleColor) {
+                titleElement.style.color = data.titleColor;
+            }
+            
+            // 헤더 배경색 적용
+            const headerSection = document.querySelector('.header-section');
+            if (data.headerBgColor) {
+                headerSection.style.background = data.headerBgColor;
+            }
+            
+            // 기간
+            if (data.startDate && data.endDate) {
+                document.getElementById('period').textContent = 
+                    `${formatDate(data.startDate)} ~ ${formatDate(data.endDate)}`;
+            }
+            
+            // 타이틀 배경 이미지
+            if (data.titleImage) {
+                const bgDiv = document.createElement('div');
+                bgDiv.className = 'header-background';
+                bgDiv.style.backgroundImage = `url(${data.titleImage})`;
+                headerSection.insertBefore(bgDiv, headerSection.firstChild);
+            }
+            
+            let html = '';
+            
+            // 공항 미팅
+            if (data.airportMeeting && data.airportMeeting.include && 
+                (data.airportMeeting.place || data.airportMeeting.name)) {
+                html += renderAirportMeeting(data.airportMeeting);
+            }
+            
+            // 현지 미팅
+            if (data.localMeeting && data.localMeeting.include && 
+                (data.localMeeting.place || data.localMeeting.guide)) {
+                html += renderLocalMeeting(data.localMeeting);
+            }
+            
+            // 항공편
+            if (data.departureAirport || data.arrivalAirport) {
+                html += renderFlight(data);
+            }
+            
+            // 골프장 & TEE-UP
+            if (data.teeTimes && data.teeTimes.length > 0) {
+                html += renderTeeTimes(data.teeTimes);
+            }
+            
+            // 일정 및 식사
+            if (data.schedules && data.schedules.length > 0) {
+                html += renderSchedules(data.schedules);
+            }
+            
+            // 숙소
+            if (data.accommodation) {
+                html += renderAccommodation(data);
+            }
+            
+            // 추가 안내사항
+            if (data.notes) {
+                html += renderNotes(data.notes);
+            }
+            
+            // 회사 정보
+            if (data.companyName) {
+                html += renderCompany(data);
+            }
+            
+            document.getElementById('contentArea').innerHTML = html;
+        }
+        
+        // 날짜 포맷
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('ko-KR', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                weekday: 'short'
+            });
+        }
+        
+        // 공항 미팅 렌더링
+        function renderAirportMeeting(meeting) {
+            return `
+                <div class="section-box purple">
+                    <h2 class="text-2xl font-bold text-purple-700 mb-4">
+                        <i class="fas fa-plane-arrival mr-2"></i>공항 미팅
+                    </h2>
+                    ${meeting.place ? `<div class="info-row"><span class="info-label">장소</span><span class="info-value">${meeting.place}</span></div>` : ''}
+                    ${meeting.date ? `<div class="info-row"><span class="info-label">날짜</span><span class="info-value">${formatDate(meeting.date)}</span></div>` : ''}
+                    ${meeting.time ? `<div class="info-row"><span class="info-label">시간</span><span class="info-value">${meeting.time}</span></div>` : ''}
+                    ${meeting.name ? `<div class="info-row"><span class="info-label">담당자</span><span class="info-value">${meeting.name}</span></div>` : ''}
+                    ${meeting.phone ? `<div class="info-row"><span class="info-label">전화번호</span><span class="info-value">${meeting.phone}</span></div>` : ''}
+                    ${meeting.image ? `<img src="${meeting.image}" class="preview-image" alt="공항 미팅">` : ''}
+                </div>
+            `;
+        }
+        
+        // 현지 미팅 렌더링
+        function renderLocalMeeting(meeting) {
+            return `
+                <div class="section-box purple">
+                    <h2 class="text-2xl font-bold text-purple-700 mb-4">
+                        <i class="fas fa-map-marker-alt mr-2"></i>현지 미팅
+                    </h2>
+                    ${meeting.place ? `<div class="info-row"><span class="info-label">장소</span><span class="info-value">${meeting.place}</span></div>` : ''}
+                    ${meeting.date ? `<div class="info-row"><span class="info-label">날짜</span><span class="info-value">${formatDate(meeting.date)}</span></div>` : ''}
+                    ${meeting.time ? `<div class="info-row"><span class="info-label">시간</span><span class="info-value">${meeting.time}</span></div>` : ''}
+                    ${meeting.guide ? `<div class="info-row"><span class="info-label">가이드</span><span class="info-value">${meeting.guide}</span></div>` : ''}
+                    ${meeting.phone ? `<div class="info-row"><span class="info-label">전화번호</span><span class="info-value">${meeting.phone}</span></div>` : ''}
+                    ${meeting.image ? `<img src="${meeting.image}" class="preview-image" alt="현지 미팅">` : ''}
+                </div>
+            `;
+        }
+        
+        // 항공편 렌더링
+        function renderFlight(data) {
+            return `
+                <div class="section-box blue">
+                    <h2 class="text-2xl font-bold text-blue-700 mb-4">
+                        <i class="fas fa-plane mr-2"></i>항공편 정보
+                    </h2>
+                    ${data.departureAirport ? `<div class="info-row"><span class="info-label">출발 공항</span><span class="info-value">${data.departureAirport}</span></div>` : ''}
+                    ${data.departureFlight ? `<div class="info-row"><span class="info-label">출발편</span><span class="info-value">${data.departureFlight}</span></div>` : ''}
+                    ${data.arrivalAirport ? `<div class="info-row"><span class="info-label">도착 공항</span><span class="info-value">${data.arrivalAirport}</span></div>` : ''}
+                    ${data.returnFlight ? `<div class="info-row"><span class="info-label">귀국편</span><span class="info-value">${data.returnFlight}</span></div>` : ''}
+                    ${data.flightImage ? `<img src="${data.flightImage}" class="preview-image" alt="항공편">` : ''}
+                </div>
+            `;
+        }
+        
+        // 골프장 & TEE-UP 렌더링
+        function renderTeeTimes(teeTimes) {
+            let html = `
+                <div class="section-box green">
+                    <h2 class="text-2xl font-bold text-green-700 mb-4">
+                        <i class="fas fa-golf-ball mr-2"></i>골프장 & TEE-UP
+                    </h2>
+            `;
+            
+            teeTimes.forEach((tee, index) => {
+                if (tee.course) {
+                    html += `
+                        <div class="mb-4 p-4 bg-white rounded-lg ${index > 0 ? 'mt-4' : ''}">
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">${tee.course}</h3>
+                            ${tee.date ? `<div class="info-row"><span class="info-label">날짜</span><span class="info-value">${formatDate(tee.date)}</span></div>` : ''}
+                            ${tee.time ? `<div class="info-row"><span class="info-label">티업 시간</span><span class="info-value">${tee.time}</span></div>` : ''}
+                            ${tee.image ? `<img src="${tee.image}" class="preview-image" alt="${tee.course}">` : ''}
+                        </div>
+                    `;
+                }
+            });
+            
+            html += `</div>`;
+            return html;
+        }
+        
+        // 일정 및 식사 렌더링
+        function renderSchedules(schedules) {
+            let html = `
+                <div class="section-box sky">
+                    <h2 class="text-2xl font-bold text-sky-700 mb-4">
+                        <i class="fas fa-calendar-check mr-2"></i>일정 및 식사
+                    </h2>
+            `;
+            
+            schedules.forEach((schedule, index) => {
+                if (schedule.title || schedule.detail) {
+                    html += `
+                        <div class="mb-4 p-4 bg-white rounded-lg ${index > 0 ? 'mt-4' : ''}">
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">
+                                ${schedule.title || `Day ${index + 1}`}
+                            </h3>
+                            ${schedule.date ? `<div class="info-row"><span class="info-label">날짜</span><span class="info-value">${formatDate(schedule.date)}</span></div>` : ''}
+                            ${schedule.detail ? `<div class="mt-3 p-3 bg-gray-50 rounded ql-editor-content">${schedule.detail}</div>` : ''}
+                            ${schedule.meals ? `<div class="mt-3 p-3 bg-yellow-50 rounded ql-editor-content"><strong>식사 및 포함사항:</strong><br>${schedule.meals}</div>` : ''}
+                            ${schedule.image ? `<img src="${schedule.image}" class="preview-image" alt="${schedule.title}">` : ''}
+                        </div>
+                    `;
+                }
+            });
+            
+            html += `</div>`;
+            return html;
+        }
+        
+        // 숙소 렌더링
+        function renderAccommodation(data) {
+            return `
+                <div class="section-box orange">
+                    <h2 class="text-2xl font-bold text-orange-700 mb-4">
+                        <i class="fas fa-hotel mr-2"></i>숙소 정보
+                    </h2>
+                    ${data.accommodation ? `<div class="info-row"><span class="info-label">숙소명</span><span class="info-value">${data.accommodation}</span></div>` : ''}
+                    ${data.accommodationAddress ? `<div class="info-row"><span class="info-label">주소</span><span class="info-value">${data.accommodationAddress}</span></div>` : ''}
+                    ${data.accommodationImage ? `<img src="${data.accommodationImage}" class="preview-image" alt="숙소">` : ''}
+                </div>
+            `;
+        }
+        
+        // 추가 안내사항 렌더링
+        function renderNotes(notes) {
+            return `
+                <div class="section-box pink">
+                    <h2 class="text-2xl font-bold text-pink-700 mb-4">
+                        <i class="fas fa-info-circle mr-2"></i>추가 안내사항
+                    </h2>
+                    <div class="text-gray-700 ql-editor-content">${notes}</div>
+                </div>
+            `;
+        }
+        
+        // 회사 정보 렌더링
+        function renderCompany(data) {
+            return `
+                <div class="section-box purple">
+                    <h2 class="text-2xl font-bold text-purple-700 mb-4">
+                        <i class="fas fa-building mr-2"></i>문의
+                    </h2>
+                    ${data.companyName ? `<div class="info-row"><span class="info-label">회사명</span><span class="info-value">${data.companyName}</span></div>` : ''}
+                    ${data.companyPhone ? `<div class="info-row"><span class="info-label">대표 전화번호</span><span class="info-value">${data.companyPhone}</span></div>` : ''}
+                    ${data.companyAddress ? `<div class="info-row"><span class="info-label">회사 주소</span><span class="info-value">${data.companyAddress}</span></div>` : ''}
+                    ${data.managerName || data.managerPhone || data.managerEmail ? `
+                        <div class="mt-4 p-3 bg-purple-50 rounded-lg">
+                            <h3 class="text-lg font-bold text-purple-700 mb-2">
+                                <i class="fas fa-user-tie mr-1"></i>담당자 정보
+                            </h3>
+                            ${data.managerName ? `<div class="info-row"><span class="info-label">담당자명</span><span class="info-value">${data.managerName}</span></div>` : ''}
+                            ${data.managerPhone ? `<div class="info-row"><span class="info-label">담당자 전화번호</span><span class="info-value">${data.managerPhone}</span></div>` : ''}
+                            ${data.managerEmail ? `<div class="info-row"><span class="info-label">담당자 이메일</span><span class="info-value">${data.managerEmail}</span></div>` : ''}
+                        </div>
+                    ` : ''}
+                    ${data.companyLogo ? `<img src="${data.companyLogo}" class="preview-image" alt="회사 로고" style="max-height: 100px;">` : ''}
+                </div>
+            `;
+        }
+        
+        // 뒤로 가기
+        function goBack() {
+            window.history.back();
+        }
+        
+        // 링크 복사
+        function copyLink() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('링크가 복사되었습니다!');
+            }).catch(err => {
+                console.error('링크 복사 실패:', err);
+                alert('링크 복사에 실패했습니다.');
+            });
+        }
+        
+        // 고해상도 이미지 저장
+        async function saveAsImage() {
+            const buttons = document.querySelector('.share-buttons');
+            buttons.style.display = 'none';
+            
+            try {
+                const element = document.getElementById('previewContent');
+                const canvas = await html2canvas(element, {
+                    scale: 3, // 3배 해상도 (고해상도)
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    logging: false,
+                    width: element.offsetWidth,
+                    height: element.offsetHeight
+                });
+                
+                // 캔버스를 이미지로 변환
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    const title = document.getElementById('title').textContent || '골프여행안내문';
+                    link.download = `${title}_${new Date().getTime()}.png`;
+                    link.href = url;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                    
+                    alert('고해상도 이미지가 저장되었습니다!');
+                }, 'image/png', 1.0);
+            } catch (error) {
+                console.error('이미지 저장 실패:', error);
+                alert('이미지 저장에 실패했습니다.');
+            } finally {
+                buttons.style.display = 'flex';
+            }
+        }
+        
+        // 페이지 로드 시 실행
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('DOMContentLoaded 이벤트 발생');
+            const data = getDataFromURL();
+            renderData(data);
+        });
+    </script>
+</body>
+</html>

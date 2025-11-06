@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>여행 안내문 시스템</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>여행 안내문 작성 시스템</h1>
+            <p class="subtitle">골프 및 일반 여행 안내문을 쉽게 작성하세요</p>
+        </header>
+
+        <main>
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-icon">⛳</div>
+                    <h2>골프 여행 안내문</h2>
+                    <p>골프장 정보, Tee-Up 시간, 이미지, 폰트/색상 커스터마이징, 템플릿 저장, 카카오톡/문자 공유 등 모든 프리미엄 기능이 포함되어 있습니다.</p>
+                    <div style="margin: 15px 0; padding: 15px; background: #f0f4ff; border-radius: 8px;">
+                        <strong>🌟 주요 기능:</strong>
+                        <ul style="text-align: left; margin: 10px 0 0 20px; line-height: 2;">
+                            <li>⛳ 골프장 & TEE-UP 정보 관리</li>
+                            <li>📸 이미지 업로드 및 편집</li>
+                            <li>🎨 8가지 폰트 및 색상 커스터마이징</li>
+                            <li>💾 템플릿 저장/불러오기</li>
+                            <li>📱 카카오톡, 문자, 이메일 공유</li>
+                            <li>🔗 링크 공유 (URL로 데이터 전달)</li>
+                        </ul>
+                    </div>
+                    <a href="golf-advanced.html" class="btn btn-primary" style="font-size: 1.1rem; padding: 15px 40px;">골프 여행 안내문 작성</a>
+                    <div style="margin-top: 10px; display: flex; gap: 8px;">
+                        <a href="엑셀_템플릿_생성.html" class="btn" style="flex: 1; background: #f59e0b; color: white; font-size: 0.85rem; padding: 10px;">
+                            📥 빈 템플릿
+                        </a>
+                        <a href="엑셀_예제파일_생성.html" class="btn" style="flex: 1; background: #8b5cf6; color: white; font-size: 0.85rem; padding: 10px;">
+                            📄 예제 파일
+                        </a>
+                        <a href="excel-import.html" class="btn" style="flex: 1; background: #10b981; color: white; font-size: 0.85rem; padding: 10px;">
+                            📊 업로드
+                        </a>
+                    </div>
+                    <p style="margin-top: 8px; font-size: 0.75rem; color: #6b7280; text-align: center;">
+                        엑셀로 간편 입력 (템플릿 다운 → 데이터 입력 → 업로드)
+                    </p>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">✈️</div>
+                    <h2>일반 여행 안내문</h2>
+                    <p>일정표 중심의 여행 안내문으로 Day별 일정, 숙소, 식사, 현지 정보 등을 관리할 수 있으며, 골프 여행과 동일한 프리미엄 기능을 제공합니다.</p>
+                    <div style="margin: 15px 0; padding: 15px; background: #f0fff4; border-radius: 8px;">
+                        <strong>🌟 주요 기능:</strong>
+                        <ul style="text-align: left; margin: 10px 0 0 20px; line-height: 2;">
+                            <li>📅 Day별 간략 일정표</li>
+                            <li>🏨 숙소 및 식사 정보</li>
+                            <li>🌍 현지 정보 (환율, 날씨, 교통 등)</li>
+                            <li>📸 이미지 업로드 및 편집</li>
+                            <li>🎨 8가지 폰트 및 색상 커스터마이징</li>
+                            <li>💾 템플릿 저장/불러오기</li>
+                            <li>📱 카카오톡, 문자, 이메일 공유</li>
+                        </ul>
+                    </div>
+                    <a href="travel-advanced.html" class="btn btn-primary" style="font-size: 1.1rem; padding: 15px 40px;">일반 여행 안내문 작성</a>
+                </div>
+            </div>
+
+            <section class="features">
+                <h3>💡 두 버전의 차이점</h3>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 12px; text-align: left; border-radius: 8px 0 0 0;">항목</th>
+                            <th style="padding: 12px; text-align: center;">⛳ 골프 여행</th>
+                            <th style="padding: 12px; text-align: center; border-radius: 0 8px 0 0;">✈️ 일반 여행</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 10px;"><strong>주요 섹션</strong></td>
+                            <td style="padding: 10px; text-align: center;">골프장 & TEE-UP</td>
+                            <td style="padding: 10px; text-align: center;">간략 일정표 (Day별)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;"><strong>입력 정보</strong></td>
+                            <td style="padding: 10px; text-align: center;">골프장명, 티업시간, 홀수, 그린피</td>
+                            <td style="padding: 10px; text-align: center;">Day, 날짜, 일정, 숙소, 식사</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 10px;"><strong>추가 정보</strong></td>
+                            <td style="padding: 10px; text-align: center;">추가 안내사항</td>
+                            <td style="padding: 10px; text-align: center;">현지 정보</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;"><strong>프리미엄 기능</strong></td>
+                            <td style="padding: 10px; text-align: center;" colspan="2">✅ 이미지, 폰트, 색상, 템플릿, 공유 기능 모두 동일</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 30px; padding: 20px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
+                    <h4 style="color: #856404; margin-bottom: 10px;">✨ 모든 프리미엄 기능 포함!</h4>
+                    <p style="color: #856404; line-height: 1.8; margin: 0;">
+                        두 버전 모두 <strong>이미지 업로드, 폰트/색상 커스터마이징, 템플릿 저장, 카카오톡/문자/이메일 공유, 링크 공유</strong> 등 
+                        전문적인 안내문 작성에 필요한 모든 기능을 제공합니다.  
+                        골프 여행인지 일반 여행인지에 따라 선택하시면 됩니다!
+                    </p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 Travel Guide System. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>

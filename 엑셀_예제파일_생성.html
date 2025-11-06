@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>골프여행 예제 파일 생성</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        .info-box {
+            background: #f0f9ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .preview-section {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .preview-row {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 10px;
+            padding: 8px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .preview-row:last-child {
+            border-bottom: none;
+        }
+        .preview-key {
+            font-weight: 600;
+            color: #4b5563;
+        }
+        .preview-value {
+            color: #1f2937;
+        }
+        .section-divider {
+            background: #dbeafe;
+            padding: 8px;
+            font-weight: bold;
+            color: #1e40af;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">
+            <i class="fas fa-file-excel text-green-600"></i> 골프여행 예제 파일 생성
+        </h1>
+        <p class="text-gray-600 mb-6">템플릿 형식에 맞는 실제 데이터가 채워진 예제 파일을 다운로드하세요</p>
+
+        <div class="info-box">
+            <h3 class="font-bold text-blue-800 mb-2">
+                <i class="fas fa-info-circle"></i> 이 파일은?
+            </h3>
+            <ul class="text-sm text-gray-700 space-y-1">
+                <li>✅ 템플릿과 동일한 형식 (항목 | 값)</li>
+                <li>✅ 기본 정보 25개 필드 + 골프장 2개 + 일정 4일 데이터</li>
+                <li>✅ 엑셀 업로드 페이지에서 바로 변환 가능</li>
+                <li>✅ 다낭 골프 여행 3박 4일 실제 데이터 예제</li>
+            </ul>
+        </div>
+
+        <div class="flex gap-4 mb-6">
+            <button onclick="generateExampleFile()" class="btn flex-1">
+                <i class="fas fa-download"></i> 예제 파일 다운로드
+            </button>
+            <button onclick="togglePreview()" class="btn flex-1" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                <i class="fas fa-eye"></i> 데이터 미리보기
+            </button>
+        </div>
+
+        <div id="previewSection" class="preview-section" style="display: none;">
+            <h3 class="font-bold text-gray-800 mb-3">예제 파일에 포함된 데이터:</h3>
+            <div id="previewContent"></div>
+        </div>
+
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
+            <a href="excel-import.html" class="text-blue-600 hover:underline">
+                <i class="fas fa-arrow-left"></i> 엑셀 업로드 페이지로 돌아가기
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // 예제 데이터 정의
+        const exampleData = {
+            '여행제목': '베트남 다낭 골프 여행 3박 4일',
+            '출발일': '2024-12-15',
+            '도착일': '2024-12-18',
+            '공항미팅_장소': '인천국제공항 3층 G카운터',
+            '공항미팅_날짜': '2024-12-15',
+            '공항미팅_시간': '06:00',
+            '공항미팅_담당자': '김민수 대리',
+            '공항미팅_전화': '010-1234-5678',
+            '현지미팅_장소': '다낭 국제공항 1층 출구',
+            '현지미팅_날짜': '2024-12-15',
+            '현지미팅_시간': '13:30',
+            '현지미팅_가이드': 'Mr. Nguyen',
+            '현지미팅_전화': '+84-905-123-456',
+            '출발공항': '인천국제공항 (ICN)',
+            '도착공항': '다낭 국제공항 (DAD)',
+            '출발편': 'VN432 06:00 → 09:30',
+            '귀국편': 'VN433 13:00 → 19:30',
+            '숙소명': '다낭 골프 앤 스파 리조트',
+            '숙소주소': '123 Truong Sa Street, Hoa Hai Ward, Ngu Hanh Son District, Da Nang',
+            '회사명': '(주)글로벌투어',
+            '회사전화': '02-1234-5678',
+            '회사주소': '서울특별시 강남구 테헤란로 123, 5층',
+            '담당자명': '박지은 과장',
+            '담당자전화': '010-9876-5432',
+            '담당자이메일': 'jieun.park@globaltour.com',
+            // 골프장 정보
+            '골프장1_이름': 'BRG 다낭 골프 리조트',
+            '골프장1_날짜': '2024-12-16',
+            '골프장1_시간': '07:30',
+            '골프장1_홀수': '18홀',
+            '골프장1_그린피': '150,000원',
+            '골프장1_캐디피': '포함',
+            '골프장1_카트비': '포함',
+            '골프장2_이름': '몽고메리 링크스 골프클럽',
+            '골프장2_날짜': '2024-12-17',
+            '골프장2_시간': '08:00',
+            '골프장2_홀수': '18홀',
+            '골프장2_그린피': '180,000원',
+            '골프장2_캐디피': '포함',
+            '골프장2_카트비': '포함',
+            // 일정 정보
+            '일정1_날짜': '2024-12-15 (일)',
+            '일정1_제목': 'DAY 1 - 인천 출발 → 다낭 도착',
+            '일정1_상세': '인천공항 출발 (VN432) → 다낭 국제공항 도착 → 호텔 체크인 → 자유시간',
+            '일정1_식사': '중식: 기내식 / 석식: 현지 해산물 레스토랑',
+            '일정2_날짜': '2024-12-16 (월)',
+            '일정2_제목': 'DAY 2 - BRG 다낭 골프 리조트 라운딩',
+            '일정2_상세': '호텔 조식 후 골프장 이동 (07:00) → BRG 다낭 골프 리조트 18홀 라운딩 → 클럽하우스 중식 → 호텔 복귀 및 휴식',
+            '일정2_식사': '조식: 호텔 뷔페 / 중식: 클럽하우스 / 석식: 호텔 인근 한식당',
+            '일정3_날짜': '2024-12-17 (화)',
+            '일정3_제목': 'DAY 3 - 몽고메리 링크스 라운딩',
+            '일정3_상세': '호텔 조식 후 골프장 이동 (07:30) → 몽고메리 링크스 18홀 라운딩 → 다낭 시내 관광 (선택) → 호이안 야시장 투어',
+            '일정3_식사': '조식: 호텔 뷔페 / 중식: 클럽하우스 / 석식: 호이안 현지 음식',
+            '일정4_날짜': '2024-12-18 (수)',
+            '일정4_제목': 'DAY 4 - 자유시간 및 귀국',
+            '일정4_상세': '호텔 조식 후 체크아웃 → 마지막 쇼핑 및 자유시간 → 공항 이동 → 다낭 출발 (VN433) → 인천 도착',
+            '일정4_식사': '조식: 호텔 뷔페 / 중식: 공항 라운지 / 석식: 기내식'
+        };
+
+        function generateExampleFile() {
+            const excelData = [
+                ['항목', '값'],
+                [],
+                ['=== 기본 정보 ===', ''],
+                ['여행제목', exampleData['여행제목']],
+                ['출발일', exampleData['출발일']],
+                ['도착일', exampleData['도착일']],
+                [],
+                ['=== 공항 미팅 ===', ''],
+                ['공항미팅_장소', exampleData['공항미팅_장소']],
+                ['공항미팅_날짜', exampleData['공항미팅_날짜']],
+                ['공항미팅_시간', exampleData['공항미팅_시간']],
+                ['공항미팅_담당자', exampleData['공항미팅_담당자']],
+                ['공항미팅_전화', exampleData['공항미팅_전화']],
+                [],
+                ['=== 현지 미팅 ===', ''],
+                ['현지미팅_장소', exampleData['현지미팅_장소']],
+                ['현지미팅_날짜', exampleData['현지미팅_날짜']],
+                ['현지미팅_시간', exampleData['현지미팅_시간']],
+                ['현지미팅_가이드', exampleData['현지미팅_가이드']],
+                ['현지미팅_전화', exampleData['현지미팅_전화']],
+                [],
+                ['=== 항공 정보 ===', ''],
+                ['출발공항', exampleData['출발공항']],
+                ['도착공항', exampleData['도착공항']],
+                ['출발편', exampleData['출발편']],
+                ['귀국편', exampleData['귀국편']],
+                [],
+                ['=== 숙소 정보 ===', ''],
+                ['숙소명', exampleData['숙소명']],
+                ['숙소주소', exampleData['숙소주소']],
+                [],
+                ['=== 회사 및 담당자 정보 ===', ''],
+                ['회사명', exampleData['회사명']],
+                ['회사전화', exampleData['회사전화']],
+                ['회사주소', exampleData['회사주소']],
+                ['담당자명', exampleData['담당자명']],
+                ['담당자전화', exampleData['담당자전화']],
+                ['담당자이메일', exampleData['담당자이메일']],
+                [],
+                [],
+                ['===================', '==================='],
+                ['골프장 & TEE-UP', '(여러 골프장 추가 가능)'],
+                ['===================', '==================='],
+                [],
+                ['골프장1_이름', 'BRG 다낭 골프 리조트'],
+                ['골프장1_날짜', '2024-12-16'],
+                ['골프장1_시간', '07:30'],
+                ['골프장1_홀수', '18홀'],
+                ['골프장1_그린피', '150,000원'],
+                ['골프장1_캐디피', '포함'],
+                ['골프장1_카트비', '포함'],
+                [],
+                ['골프장2_이름', '몽고메리 링크스 골프클럽'],
+                ['골프장2_날짜', '2024-12-17'],
+                ['골프장2_시간', '08:00'],
+                ['골프장2_홀수', '18홀'],
+                ['골프장2_그린피', '180,000원'],
+                ['골프장2_캐디피', '포함'],
+                ['골프장2_카트비', '포함'],
+                [],
+                [],
+                ['===================', '==================='],
+                ['일정 및 식사', '(일자별 일정 추가 가능)'],
+                ['===================', '==================='],
+                [],
+                ['일정1_날짜', '2024-12-15 (일)'],
+                ['일정1_제목', 'DAY 1 - 인천 출발 → 다낭 도착'],
+                ['일정1_상세', '인천공항 출발 (VN432) → 다낭 국제공항 도착 → 호텔 체크인 → 자유시간'],
+                ['일정1_식사', '중식: 기내식 / 석식: 현지 해산물 레스토랑'],
+                [],
+                ['일정2_날짜', '2024-12-16 (월)'],
+                ['일정2_제목', 'DAY 2 - BRG 다낭 골프 리조트 라운딩'],
+                ['일정2_상세', '호텔 조식 후 골프장 이동 (07:00) → BRG 다낭 골프 리조트 18홀 라운딩 → 클럽하우스 중식 → 호텔 복귀 및 휴식'],
+                ['일정2_식사', '조식: 호텔 뷔페 / 중식: 클럽하우스 / 석식: 호텔 인근 한식당'],
+                [],
+                ['일정3_날짜', '2024-12-17 (화)'],
+                ['일정3_제목', 'DAY 3 - 몽고메리 링크스 라운딩'],
+                ['일정3_상세', '호텔 조식 후 골프장 이동 (07:30) → 몽고메리 링크스 18홀 라운딩 → 다낭 시내 관광 (선택) → 호이안 야시장 투어'],
+                ['일정3_식사', '조식: 호텔 뷔페 / 중식: 클럽하우스 / 석식: 호이안 현지 음식'],
+                [],
+                ['일정4_날짜', '2024-12-18 (수)'],
+                ['일정4_제목', 'DAY 4 - 자유시간 및 귀국'],
+                ['일정4_상세', '호텔 조식 후 체크아웃 → 마지막 쇼핑 및 자유시간 → 공항 이동 → 다낭 출발 (VN433) → 인천 도착'],
+                ['일정4_식사', '조식: 호텔 뷔페 / 중식: 공항 라운지 / 석식: 기내식']
+            ];
+
+            // 워크북 생성
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(excelData);
+
+            // 열 너비 설정
+            ws['!cols'] = [
+                { wch: 25 },  // 항목 열
+                { wch: 50 }   // 값 열
+            ];
+
+            // 시트 추가
+            XLSX.utils.book_append_sheet(wb, ws, "골프여행 정보");
+
+            // 파일 다운로드
+            XLSX.writeFile(wb, '골프여행_예제_다낭3박4일.xlsx');
+
+            // 성공 메시지
+            alert('✅ 예제 파일이 다운로드되었습니다!\n\n이 파일을 "엑셀 파일 업로드" 페이지에서 업로드하면 모든 데이터가 자동으로 입력됩니다.');
+        }
+
+        function togglePreview() {
+            const previewSection = document.getElementById('previewSection');
+            const previewContent = document.getElementById('previewContent');
+            
+            if (previewSection.style.display === 'none') {
+                previewSection.style.display = 'block';
+                
+                // 미리보기 콘텐츠 생성
+                let html = '';
+                
+                const sections = {
+                    '기본 정보': ['여행제목', '출발일', '도착일'],
+                    '공항 미팅': ['공항미팅_장소', '공항미팅_날짜', '공항미팅_시간', '공항미팅_담당자', '공항미팅_전화'],
+                    '현지 미팅': ['현지미팅_장소', '현지미팅_날짜', '현지미팅_시간', '현지미팅_가이드', '현지미팅_전화'],
+                    '항공 정보': ['출발공항', '도착공항', '출발편', '귀국편'],
+                    '숙소 정보': ['숙소명', '숙소주소'],
+                    '회사 및 담당자': ['회사명', '회사전화', '회사주소', '담당자명', '담당자전화', '담당자이메일'],
+                    '골프장1': ['골프장1_이름', '골프장1_날짜', '골프장1_시간', '골프장1_홀수', '골프장1_그린피', '골프장1_캐디피', '골프장1_카트비'],
+                    '골프장2': ['골프장2_이름', '골프장2_날짜', '골프장2_시간', '골프장2_홀수', '골프장2_그린피', '골프장2_캐디피', '골프장2_카트비'],
+                    '일정1': ['일정1_날짜', '일정1_제목', '일정1_상세', '일정1_식사'],
+                    '일정2': ['일정2_날짜', '일정2_제목', '일정2_상세', '일정2_식사'],
+                    '일정3': ['일정3_날짜', '일정3_제목', '일정3_상세', '일정3_식사'],
+                    '일정4': ['일정4_날짜', '일정4_제목', '일정4_상세', '일정4_식사']
+                };
+
+                for (const [section, fields] of Object.entries(sections)) {
+                    html += `<div class="section-divider"><i class="fas fa-folder-open"></i> ${section}</div>`;
+                    fields.forEach(field => {
+                        html += `
+                            <div class="preview-row">
+                                <div class="preview-key">${field}</div>
+                                <div class="preview-value">${exampleData[field]}</div>
+                            </div>
+                        `;
+                    });
+                }
+
+                previewContent.innerHTML = html;
+            } else {
+                previewSection.style.display = 'none';
+            }
+        }
+
+        // 페이지 로드 시 자동 다운로드 옵션 (URL 파라미터로 제어)
+        window.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('auto') === 'download') {
+                generateExampleFile();
+            }
+        });
+    </script>
+</body>
+</html>

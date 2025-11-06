@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>엑셀 파일 분석 테스트</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <h1>엑셀 파일 구조 분석</h1>
+    <input type="file" id="fileInput" accept=".xlsx,.xls">
+    <pre id="output"></pre>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    let output = '=== 엑셀 파일 구조 ===\n\n';
+                    
+                    // 모든 시트 이름
+                    output += '시트 목록:\n';
+                    workbook.SheetNames.forEach((name, i) => {
+                        output += `  ${i + 1}. ${name}\n`;
+                    });
+                    output += '\n';
+                    
+                    // 첫 번째 시트 데이터
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    output += `첫 번째 시트: ${workbook.SheetNames[0]}\n`;
+                    output += '='.repeat(50) + '\n\n';
+                    
+                    // 배열로 변환 (헤더 포함)
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { 
+                        header: 1,
+                        defval: '',
+                        blankrows: true 
+                    });
+                    
+                    output += 'RAW 데이터 (배열):\n';
+                    output += JSON.stringify(jsonData, null, 2);
+                    output += '\n\n';
+                    
+                    // 객체로 변환
+                    const jsonDataWithHeaders = XLSX.utils.sheet_to_json(firstSheet);
+                    output += '\n객체 데이터 (첫 행을 키로):\n';
+                    output += JSON.stringify(jsonDataWithHeaders, null, 2);
+                    
+                    document.getElementById('output').textContent = output;
+                    
+                } catch (error) {
+                    document.getElementById('output').textContent = 
+                        '오류 발생: ' + error.message + '\n\n' + error.stack;
+                }
+            };
+            
+            reader.readAsArrayBuffer(file);
+        });
+    </script>
+</body>
+</html>
