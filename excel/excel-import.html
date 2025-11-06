@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>엑셀 자동 입력 - 골프 여행 안내문</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .upload-zone {
+            border: 3px dashed #667eea;
+            background: #f0f4ff;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .upload-zone:hover {
+            border-color: #764ba2;
+            background: #e8edff;
+        }
+        .upload-zone.dragover {
+            border-color: #10b981;
+            background: #d1fae5;
+        }
+        .step {
+            opacity: 0.3;
+            transition: all 0.3s;
+        }
+        .step.active {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        .preview-section {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+        <div class="card p-8 md:p-12">
+            <!-- 헤더 -->
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">
+                    <i class="fas fa-file-excel text-green-600"></i>
+                </div>
+                <h1 class="text-4xl font-bold text-gray-800 mb-2">엑셀 자동 입력</h1>
+                <p class="text-gray-600">엑셀 파일을 업로드하면 자동으로 입력 폼을 채워드립니다</p>
+            </div>
+
+            <!-- 단계 표시 -->
+            <div class="flex justify-center items-center gap-4 mb-8">
+                <div class="step active text-center">
+                    <div class="w-12 h-12 bg-purple-600 text-white rounded-full flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-upload"></i>
+                    </div>
+                    <p class="text-xs font-semibold">1. 파일 업로드</p>
+                </div>
+                <div class="w-12 h-1 bg-gray-300"></div>
+                <div id="step2" class="step text-center">
+                    <div class="w-12 h-12 bg-purple-600 text-white rounded-full flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <p class="text-xs font-semibold">2. 데이터 추출</p>
+                </div>
+                <div class="w-12 h-1 bg-gray-300"></div>
+                <div id="step3" class="step text-center">
+                    <div class="w-12 h-12 bg-purple-600 text-white rounded-full flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <p class="text-xs font-semibold">3. 완료</p>
+                </div>
+            </div>
+
+            <!-- 업로드 영역 -->
+            <div id="uploadSection">
+                <div class="upload-zone p-12 rounded-xl text-center" id="dropZone">
+                    <i class="fas fa-cloud-upload-alt text-6xl text-purple-600 mb-4"></i>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">엑셀 파일을 드래그하거나 클릭하세요</h3>
+                    <p class="text-gray-600 mb-4">지원 형식: .xlsx, .xls</p>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls" class="hidden">
+                    <button type="button" onclick="document.getElementById('fileInput').click()" 
+                        class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-bold transition">
+                        <i class="fas fa-folder-open mr-2"></i>파일 선택
+                    </button>
+                </div>
+
+                <!-- 예제 다운로드 -->
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-gray-600 mb-2">
+                        <i class="fas fa-info-circle mr-1"></i>엑셀 형식이 맞지 않나요?
+                    </p>
+                    <a href="./엑셀_예제파일_생성.html" class="inline-block bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg font-semibold transition">
+                        <i class="fas fa-file-excel mr-1"></i>예제 파일 다운로드 (다낭 3박4일)
+                    </a>
+                    <p class="text-xs text-gray-500 mt-2">
+                        템플릿 형식에 맞는 실제 데이터 예제
+                    </p>
+                </div>
+            </div>
+
+            <!-- 데이터 미리보기 -->
+            <div id="previewSection" class="hidden">
+                <div class="bg-blue-50 p-6 rounded-lg border-2 border-blue-200">
+                    <h3 class="text-xl font-bold text-blue-800 mb-4">
+                        <i class="fas fa-search mr-2"></i>추출된 데이터 미리보기
+                    </h3>
+                    <div id="previewContent" class="preview-section bg-white p-4 rounded-lg">
+                        <!-- 데이터 미리보기 내용 -->
+                    </div>
+                </div>
+
+                <!-- 버튼 -->
+                <div class="mt-6 flex gap-4">
+                    <button type="button" onclick="location.reload()" 
+                        class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 px-4 rounded-lg font-bold transition">
+                        <i class="fas fa-redo mr-2"></i>다시 업로드
+                    </button>
+                    <button type="button" id="applyButton" 
+                        class="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg font-bold transition">
+                        <i class="fas fa-check mr-2"></i>이 데이터로 입력 폼 채우기
+                    </button>
+                </div>
+            </div>
+
+            <!-- 홈으로 돌아가기 -->
+            <div class="mt-8 text-center">
+                <a href="../index.html" class="text-purple-600 hover:text-purple-700 font-semibold">
+                    <i class="fas fa-home mr-1"></i>홈으로 돌아가기
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/excel.js"></script>
+</body>
+</html>

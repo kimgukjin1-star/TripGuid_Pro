@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>일반 여행 안내문 생성기</title>
+    <title>골프 여행 안내문 생성기</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="fonts/custom-fonts.css">
+    <link rel="stylesheet" href="../fonts/custom-fonts.css">
+    
+    <!-- Quill Editor -->
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
     <style>
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -18,7 +22,7 @@
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
-        .travel-icon {
+        .golf-icon {
             font-size: 4rem;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
@@ -38,10 +42,10 @@
         <div class="card p-8 md:p-12">
             <!-- 헤더 -->
             <div class="text-center mb-8">
-                <div class="travel-icon mb-4">
-                    <i class="fas fa-plane"></i>
+                <div class="golf-icon mb-4">
+                    <i class="fas fa-golf-ball"></i>
                 </div>
-                <h1 class="text-4xl font-bold text-gray-800 mb-2">일반 여행 안내문 생성기</h1>
+                <h1 class="text-4xl font-bold text-gray-800 mb-2">골프 여행 안내문 생성기</h1>
                 <p class="text-gray-600">간편하게 안내문을 작성하고 공유하세요</p>
             </div>
 
@@ -97,7 +101,7 @@
                         <p class="text-sm font-bold text-yellow-800 mb-2">
                             <i class="fas fa-palette mr-1"></i>타이틀 디자인
                         </p>
-                        <div class="grid md:grid-cols-2 gap-3">
+                        <div class="grid md:grid-cols-3 gap-3">
                             <div>
                                 <label class="block text-xs font-semibold text-gray-700 mb-1">글꼴</label>
                                 <select id="titleFont" class="w-full px-3 py-2 text-sm border-2 border-gray-300 rounded-lg focus:border-yellow-500 focus:outline-none">
@@ -126,9 +130,19 @@
                             <div>
                                 <label class="block text-xs font-semibold text-gray-700 mb-1">글자 색상</label>
                                 <div class="flex gap-2">
-                                    <input type="color" id="titleColor" value="#ffffff"
+                                    <input type="color" id="titleColor" value="#1f2937"
                                         class="h-10 w-16 border-2 border-gray-300 rounded-lg cursor-pointer">
-                                    <input type="text" id="titleColorHex" value="#ffffff"
+                                    <input type="text" id="titleColorHex" value="#1f2937"
+                                        class="flex-1 px-3 py-2 text-sm border-2 border-gray-300 rounded-lg focus:border-yellow-500 focus:outline-none"
+                                        placeholder="#1f2937">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">헤더 배경색</label>
+                                <div class="flex gap-2">
+                                    <input type="color" id="headerBgColor" value="#ffffff"
+                                        class="h-10 w-16 border-2 border-gray-300 rounded-lg cursor-pointer">
+                                    <input type="text" id="headerBgColorHex" value="#ffffff"
                                         class="flex-1 px-3 py-2 text-sm border-2 border-gray-300 rounded-lg focus:border-yellow-500 focus:outline-none"
                                         placeholder="#ffffff">
                                 </div>
@@ -213,38 +227,143 @@
                     <h3 class="text-lg font-bold text-gray-800 mb-4">
                         <i class="fas fa-handshake text-purple-600 mr-2"></i>미팅 정보
                     </h3>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">장소</label>
-                            <input type="text" id="meetingPlace" required
-                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
-                                placeholder="예: 인천공항 제1터미널 3번 게이트">
-                        </div>
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">미팅 일자</label>
-                                <input type="date" id="meetingDate" required
-                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">미팅 시간</label>
-                                <input type="time" id="meetingTime" required
-                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none">
+                    
+                    <!-- 공항 미팅 -->
+                    <div class="bg-white p-4 rounded-lg border-2 border-purple-300 mb-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-bold text-purple-700">
+                                <i class="fas fa-plane-arrival mr-2"></i>공항 미팅
+                            </h4>
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="airportMeetingInclude" class="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500" checked>
+                                <label for="airportMeetingInclude" class="text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-eye text-yellow-600 mr-1"></i>미리보기 포함
+                                </label>
                             </div>
                         </div>
                         
-                        <!-- 미팅 이미지 -->
-                        <div class="mt-3">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-image text-purple-600 mr-1"></i>미팅 장소 이미지 (선택)
-                            </label>
-                            <input type="file" id="meetingImage" accept="image/*"
-                                class="w-full px-3 py-2 text-sm border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none">
-                            <div id="meetingImagePreview" class="mt-2 hidden">
-                                <img class="max-w-full h-32 object-contain rounded-lg border-2 border-gray-200">
-                                <button type="button" class="remove-image mt-1 text-red-500 text-sm hover:text-red-700">
-                                    <i class="fas fa-times-circle mr-1"></i>이미지 제거
-                                </button>
+                        <div class="space-y-3">
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">장소</label>
+                                    <input type="text" id="airportMeetingPlace"
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                                        placeholder="예: 인천공항 제1터미널">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">미팅 일자</label>
+                                    <input type="date" id="airportMeetingDate"
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">미팅 시간</label>
+                                    <input type="time" id="airportMeetingTime"
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none">
+                                </div>
+                            </div>
+                            
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                        <i class="fas fa-user text-purple-600 mr-1"></i>담당자 이름
+                                    </label>
+                                    <input type="text" id="airportMeetingName"
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                                        placeholder="예: 홍길동">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                        <i class="fas fa-phone text-purple-600 mr-1"></i>전화번호
+                                    </label>
+                                    <input type="tel" id="airportMeetingPhone"
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                                        placeholder="예: 010-1234-5678">
+                                </div>
+                            </div>
+                            
+                            <!-- 공항 미팅 이미지 -->
+                            <div class="mt-3">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-image text-purple-600 mr-1"></i>이미지 (선택)
+                                </label>
+                                <input type="file" id="airportMeetingImage" accept="image/*"
+                                    class="w-full px-3 py-2 text-sm border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none">
+                                <div id="airportMeetingImagePreview" class="mt-2 hidden">
+                                    <img class="max-w-full h-32 object-contain rounded-lg border-2 border-gray-200">
+                                    <button type="button" class="remove-image mt-1 text-red-500 text-sm hover:text-red-700">
+                                        <i class="fas fa-times-circle mr-1"></i>이미지 제거
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 현지 미팅 -->
+                    <div class="bg-white p-4 rounded-lg border-2 border-purple-300">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-bold text-purple-700">
+                                <i class="fas fa-map-marker-alt mr-2"></i>현지 미팅
+                            </h4>
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="localMeetingInclude" class="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500" checked>
+                                <label for="localMeetingInclude" class="text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-eye text-yellow-600 mr-1"></i>미리보기 포함
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">장소</label>
+                                    <input type="text" id="localMeetingPlace"
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                                        placeholder="예: 제주공항 1층 로비">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">미팅 일자</label>
+                                    <input type="date" id="localMeetingDate"
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">미팅 시간</label>
+                                    <input type="time" id="localMeetingTime"
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none">
+                                </div>
+                            </div>
+                            
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                        <i class="fas fa-user-tie text-purple-600 mr-1"></i>가이드 이름
+                                    </label>
+                                    <input type="text" id="localMeetingGuide"
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                                        placeholder="예: 김가이드">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                        <i class="fas fa-phone text-purple-600 mr-1"></i>전화번호
+                                    </label>
+                                    <input type="tel" id="localMeetingPhone"
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                                        placeholder="예: 010-9876-5432">
+                                </div>
+                            </div>
+                            
+                            <!-- 현지 미팅 이미지 -->
+                            <div class="mt-3">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-image text-purple-600 mr-1"></i>이미지 (선택)
+                                </label>
+                                <input type="file" id="localMeetingImage" accept="image/*"
+                                    class="w-full px-3 py-2 text-sm border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none">
+                                <div id="localMeetingImagePreview" class="mt-2 hidden">
+                                    <img class="max-w-full h-32 object-contain rounded-lg border-2 border-gray-200">
+                                    <button type="button" class="remove-image mt-1 text-red-500 text-sm hover:text-red-700">
+                                        <i class="fas fa-times-circle mr-1"></i>이미지 제거
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -447,71 +566,51 @@
                     </div>
                 </div>
 
-                <!-- 간략 일정표 -->
+                <!-- 골프장&TEE-UP 정보 -->
                 <div class="bg-green-50 p-6 rounded-lg border-2 border-green-200">
                     <h3 class="text-lg font-bold text-gray-800 mb-4">
-                        <i class="fas fa-calendar-alt text-green-600 mr-2"></i>간략 일정표
+                        <i class="fas fa-golf-ball text-green-600 mr-2"></i>골프장&TEE-UP
                     </h3>
-                    <div id="scheduleContainer" class="space-y-4">
-                        <div class="schedule-item bg-white p-4 rounded-lg border-2 border-gray-200">
+                    <div id="teeTimeContainer" class="space-y-4">
+                        <div class="tee-time-item bg-white p-4 rounded-lg border-2 border-gray-200">
                             <div class="grid md:grid-cols-3 gap-4">
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Day</label>
-                                    <input type="text" class="schedule-day w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none"
-                                        placeholder="예: Day 1">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">골프장명</label>
+                                    <input type="text" class="tee-course w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none"
+                                        placeholder="예: 제주 핀크스">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">날짜</label>
-                                    <input type="date" class="schedule-date w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none">
+                                    <input type="date" class="tee-date w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">일정 제목</label>
-                                    <input type="text" class="schedule-title w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none"
-                                        placeholder="예: 파리 시내 관광">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">티업 시간</label>
+                                    <input type="time" class="tee-time w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none">
                                 </div>
                             </div>
-                            <!-- 일정 상세 내용 -->
-                            <div class="mt-3 md:col-span-3">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">세부 일정</label>
-                                <textarea class="schedule-detail w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none" rows="3"
-                                    placeholder="방문 장소, 활동, 식사 등 상세 일정을 입력하세요"></textarea>
-                            </div>
-                            <!-- 숭소 및 식사 -->
-                            <div class="grid md:grid-cols-2 gap-4 mt-3">
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">숭소</label>
-                                    <input type="text" class="schedule-hotel w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none"
-                                        placeholder="예: 파리 힐튼 호텔">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">식사</label>
-                                    <input type="text" class="schedule-meal w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none"
-                                        placeholder="예: 조식 포함, 중식 현지식">
-                                </div>
-                            </div>
-                            <!-- 일정 이미지 -->
+                            <!-- 골프장 이미지 -->
                             <div class="mt-3">
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-image text-green-600 mr-1"></i>일정 이미지 (선택)
+                                    <i class="fas fa-image text-green-600 mr-1"></i>골프장 이미지 (선택)
                                 </label>
-                                <input type="file" class="schedule-image w-full px-3 py-2 text-sm border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none" accept="image/*">
-                                <div class="schedule-image-preview mt-2 hidden">
+                                <input type="file" class="tee-image w-full px-3 py-2 text-sm border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none" accept="image/*">
+                                <div class="tee-image-preview mt-2 hidden">
                                     <img class="max-w-full h-32 object-contain rounded-lg border-2 border-gray-200">
-                                    <button type="button" class="remove-schedule-image mt-1 text-red-500 text-sm hover:text-red-700">
+                                    <button type="button" class="remove-tee-image mt-1 text-red-500 text-sm hover:text-red-700">
                                         <i class="fas fa-times-circle mr-1"></i>이미지 제거
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <button type="button" id="addSchedule" class="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">
-                        <i class="fas fa-plus mr-2"></i>일정 추가
+                    <button type="button" id="addTeeTime" class="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">
+                        <i class="fas fa-plus mr-2"></i>TEE-UP 추가
                     </button>
                     
-                    <!-- 일정표 디자인 설정 -->
+                    <!-- 골프장&TEE-UP 디자인 설정 -->
                     <div class="design-settings">
                         <p class="text-sm font-bold text-yellow-800 mb-2">
-                            <i class="fas fa-palette mr-1"></i>일정표 디자인
+                            <i class="fas fa-palette mr-1"></i>골프장&TEE-UP 디자인
                         </p>
                         <div class="grid md:grid-cols-2 gap-3">
                             <div>
@@ -553,8 +652,122 @@
                     </div>
                 </div>
 
-                <!-- 숙소 정보 (선택사항) -->
-                <div class="bg-orange-50 p-6 rounded-lg border-2 border-orange-200" style="display: none;">
+                <!-- 일정 및 식사 -->
+                <div class="bg-blue-50 p-6 rounded-lg border-2 border-blue-200">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">
+                        <i class="fas fa-calendar-check text-blue-600 mr-2"></i>일정 및 식사
+                    </h3>
+                    <div id="scheduleContainer" class="space-y-4">
+                        <div class="schedule-item bg-white p-4 rounded-lg border-2 border-gray-200 relative">
+                            <button type="button" class="remove-schedule-item absolute top-2 right-2 text-red-500 hover:text-red-700 font-bold text-xl" style="display: none;">
+                                <i class="fas fa-times-circle"></i>
+                            </button>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">날짜</label>
+                                    <input type="date" class="schedule-date w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">제목</label>
+                                    <input type="text" class="schedule-title w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                                        placeholder="예: 첫째날 일정">
+                                </div>
+                            </div>
+                            
+                            <!-- 일정 상세 -->
+                            <div class="mt-3">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-list text-blue-600 mr-1"></i>일정 상세
+                                </label>
+                                <p class="text-xs text-gray-500 mb-1">💡 텍스트를 드래그하여 색상, 굵기 등을 변경할 수 있습니다.</p>
+                                <div class="schedule-detail-editor" style="background: white; min-height: 120px; border: 2px solid #d1d5db; border-radius: 8px;"></div>
+                                <input type="hidden" class="schedule-detail">
+                            </div>
+                            
+                            <!-- 식사 메뉴 및 포함 사항 -->
+                            <div class="mt-3">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-utensils text-blue-600 mr-1"></i>식사 메뉴 및 포함 사항
+                                </label>
+                                <p class="text-xs text-gray-500 mb-1">💡 텍스트를 드래그하여 색상, 굵기 등을 변경할 수 있습니다.</p>
+                                <div class="schedule-meals-editor" style="background: white; min-height: 120px; border: 2px solid #d1d5db; border-radius: 8px;"></div>
+                                <input type="hidden" class="schedule-meals">
+                            </div>
+                            
+                            <!-- 일정 이미지 -->
+                            <div class="mt-3">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-image text-blue-600 mr-1"></i>일정 이미지 (선택)
+                                </label>
+                                <input type="file" class="schedule-image w-full px-3 py-2 text-sm border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" accept="image/*">
+                                <div class="schedule-image-preview mt-2 hidden">
+                                    <img class="max-w-full h-32 object-contain rounded-lg border-2 border-gray-200">
+                                    <button type="button" class="remove-schedule-image mt-1 text-red-500 text-sm hover:text-red-700">
+                                        <i class="fas fa-times-circle mr-1"></i>이미지 제거
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- 미리보기 포함/제외 체크박스 -->
+                            <div class="mt-4 flex items-center gap-2 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                                <input type="checkbox" class="schedule-include-preview w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" checked>
+                                <label class="text-sm font-semibold text-gray-700">
+                                    <i class="fas fa-eye text-yellow-600 mr-1"></i>미리보기에 이 일정 포함
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" id="addSchedule" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+                        <i class="fas fa-plus mr-2"></i>일정 추가
+                    </button>
+                    
+                    <!-- 일정 및 식사 디자인 설정 -->
+                    <div class="design-settings">
+                        <p class="text-sm font-bold text-yellow-800 mb-2">
+                            <i class="fas fa-palette mr-1"></i>일정 및 식사 디자인
+                        </p>
+                        <div class="grid md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">글꼴</label>
+                                <select id="scheduleFont" class="w-full px-3 py-2 text-sm border-2 border-gray-300 rounded-lg focus:border-yellow-500 focus:outline-none">
+                                    <optgroup label="기본 폰트">
+                                        <option value="'Noto Sans KR', sans-serif">Noto Sans (기본)</option>
+                                        <option value="'Nanum Gothic', sans-serif">나눔고딕</option>
+                                        <option value="'Nanum Myeongjo', serif">나눔명조</option>
+                                        <option value="'Black Han Sans', sans-serif">검은고딕</option>
+                                        <option value="'Do Hyeon', sans-serif">도현체</option>
+                                        <option value="'Jua', sans-serif">주아체</option>
+                                        <option value="'Gamja Flower', cursive">감자꽃체</option>
+                                        <option value="'Sunflower', sans-serif">해바라기체</option>
+                                    </optgroup>
+                                    <optgroup label="커스텀 폰트">
+                                        <option value="'Pretendard-ExtraBold', sans-serif">Pretendard ExtraBold</option>
+                                        <option value="'Pretendard-Light', sans-serif">Pretendard Light</option>
+                                        <option value="'Pretendard-Medium', sans-serif">Pretendard Medium</option>
+                                        <option value="'Pretendard-Regular', sans-serif">Pretendard Regular</option>
+                                        <option value="'Recipekorea', sans-serif">레시피코리아 레코체</option>
+                                        <option value="'SB-Aggro-B', sans-serif">SB 어그로 B</option>
+                                        <option value="'SB-Aggro-L', sans-serif">SB 어그로 L</option>
+                                        <option value="'SB-Aggro-M', sans-serif">SB 어그로 M</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">글자 색상</label>
+                                <div class="flex gap-2">
+                                    <input type="color" id="scheduleColor" value="#1f2937"
+                                        class="h-10 w-16 border-2 border-gray-300 rounded-lg cursor-pointer">
+                                    <input type="text" id="scheduleColorHex" value="#1f2937"
+                                        class="flex-1 px-3 py-2 text-sm border-2 border-gray-300 rounded-lg focus:border-yellow-500 focus:outline-none"
+                                        placeholder="#1f2937">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 숙소 정보 -->
+                <div class="bg-orange-50 p-6 rounded-lg border-2 border-orange-200">
                     <h3 class="text-lg font-bold text-gray-800 mb-4">
                         <i class="fas fa-hotel text-orange-600 mr-2"></i>숙소 정보
                     </h3>
@@ -631,19 +844,21 @@
                     </div>
                 </div>
 
-                <!-- 현지 정보 -->
+                <!-- 추가 안내사항 -->
                 <div class="bg-pink-50 p-6 rounded-lg border-2 border-pink-200">
                     <h3 class="text-lg font-bold text-gray-800 mb-4">
-                        <i class="fas fa-globe text-pink-600 mr-2"></i>현지 정보 (선택)
+                        <i class="fas fa-info-circle text-pink-600 mr-2"></i>추가 안내사항 (선택)
                     </h3>
-                    <textarea id="additionalInfo" rows="4"
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-pink-500 focus:outline-none"
-                        placeholder="준비물, 주의사항 등 추가로 전달할 내용을 입력하세요"></textarea>
+                    <p class="text-sm text-gray-600 mb-2">
+                        💡 텍스트를 드래그하여 블록 지정 후 색상, 굵기, 밑줄 등을 변경할 수 있습니다.
+                    </p>
+                    <div id="notesEditor" style="background: white; min-height: 150px; border: 2px solid #d1d5db; border-radius: 8px;"></div>
+                    <input type="hidden" id="notes">
                     
-                    <!-- 현지 정보 디자인 설정 -->
+                    <!-- 추가 안내사항 디자인 설정 -->
                     <div class="design-settings">
                         <p class="text-sm font-bold text-yellow-800 mb-2">
-                            <i class="fas fa-palette mr-1"></i>현지 정보 디자인
+                            <i class="fas fa-palette mr-1"></i>추가 안내사항 디자인
                         </p>
                         <div class="grid md:grid-cols-2 gap-3">
                             <div>
@@ -883,6 +1098,136 @@
         </div>
     </div>
 
-    <script src="js/travel-main.js"></script>
+    <script>
+    // 엑셀 가져오기 데이터 확인 및 적용
+    window.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('import') === 'excel') {
+            const excelData = localStorage.getItem('excelImportData');
+            if (excelData) {
+                try {
+                    const data = JSON.parse(excelData);
+                    applyExcelData(data);
+                    localStorage.removeItem('excelImportData');
+                    alert('엑셀 데이터가 입력 폼에 적용되었습니다!\n필요시 수정 후 "미리보기 & 공유하기"를 클릭하세요.');
+                } catch (error) {
+                    console.error('엑셀 데이터 적용 오류:', error);
+                }
+            }
+        }
+    });
+
+    // 엑셀 데이터 적용 함수
+    function applyExcelData(data) {
+        if (data.title) document.getElementById('title').value = data.title;
+        if (data.startDate) document.getElementById('startDate').value = data.startDate;
+        if (data.endDate) document.getElementById('endDate').value = data.endDate;
+        
+        // 공항 미팅
+        if (data.airportMeeting) {
+            if (data.airportMeeting.place) document.getElementById('airportMeetingPlace').value = data.airportMeeting.place;
+            if (data.airportMeeting.date) document.getElementById('airportMeetingDate').value = data.airportMeeting.date;
+            if (data.airportMeeting.time) document.getElementById('airportMeetingTime').value = data.airportMeeting.time;
+            if (data.airportMeeting.name) document.getElementById('airportMeetingName').value = data.airportMeeting.name;
+            if (data.airportMeeting.phone) document.getElementById('airportMeetingPhone').value = data.airportMeeting.phone;
+        }
+        
+        // 현지 미팅
+        if (data.localMeeting) {
+            if (data.localMeeting.place) document.getElementById('localMeetingPlace').value = data.localMeeting.place;
+            if (data.localMeeting.date) document.getElementById('localMeetingDate').value = data.localMeeting.date;
+            if (data.localMeeting.time) document.getElementById('localMeetingTime').value = data.localMeeting.time;
+            if (data.localMeeting.guide) document.getElementById('localMeetingGuide').value = data.localMeeting.guide;
+            if (data.localMeeting.phone) document.getElementById('localMeetingPhone').value = data.localMeeting.phone;
+        }
+        
+        // 항공편
+        if (data.departureAirport) document.getElementById('departureAirport').value = data.departureAirport;
+        if (data.arrivalAirport) document.getElementById('arrivalAirport').value = data.arrivalAirport;
+        if (data.departureFlight) document.getElementById('departureFlight').value = data.departureFlight;
+        if (data.returnFlight) document.getElementById('returnFlight').value = data.returnFlight;
+        
+        // 숙소
+        if (data.accommodation) document.getElementById('accommodation').value = data.accommodation;
+        if (data.accommodationAddress) document.getElementById('accommodationAddress').value = data.accommodationAddress;
+        
+        // 회사 정보
+        if (data.companyName) document.getElementById('companyName').value = data.companyName;
+        if (data.companyPhone) document.getElementById('companyPhone').value = data.companyPhone;
+        if (data.companyAddress) document.getElementById('companyAddress').value = data.companyAddress;
+        if (data.managerName) document.getElementById('managerName').value = data.managerName;
+        if (data.managerPhone) document.getElementById('managerPhone').value = data.managerPhone;
+        if (data.managerEmail) document.getElementById('managerEmail').value = data.managerEmail;
+    }
+    
+    // Quill 에디터 설정
+    const quillConfig = {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'color': [] }, { 'background': [] }],
+                [{ 'align': [] }],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                ['clean']
+            ]
+        }
+    };
+    
+    // 추가 안내사항 에디터
+    var notesQuill = new Quill('#notesEditor', {
+        ...quillConfig,
+        placeholder: '준비물, 주의사항 등 추가로 전달할 내용을 입력하세요...'
+    });
+    
+    notesQuill.on('text-change', function() {
+        document.getElementById('notes').value = notesQuill.root.innerHTML;
+    });
+    
+    // 일정 항목 에디터 초기화 함수
+    function initScheduleEditors(scheduleItem) {
+        const detailEditor = scheduleItem.querySelector('.schedule-detail-editor');
+        const mealsEditor = scheduleItem.querySelector('.schedule-meals-editor');
+        
+        if (detailEditor && !detailEditor.classList.contains('ql-container')) {
+            const detailQuill = new Quill(detailEditor, {
+                ...quillConfig,
+                placeholder: '예: 08:30 호텔 조식 → 09:00 티업 → 18홀 라운드'
+            });
+            
+            detailQuill.on('text-change', function() {
+                scheduleItem.querySelector('.schedule-detail').value = detailQuill.root.innerHTML;
+            });
+            
+            // Quill 인스턴스를 DOM에 저장
+            detailEditor._quill = detailQuill;
+        }
+        
+        if (mealsEditor && !mealsEditor.classList.contains('ql-container')) {
+            const mealsQuill = new Quill(mealsEditor, {
+                ...quillConfig,
+                placeholder: '예: 조식(뷔페), 중식(한정식), 석식(자유식)'
+            });
+            
+            mealsQuill.on('text-change', function() {
+                scheduleItem.querySelector('.schedule-meals').value = mealsQuill.root.innerHTML;
+            });
+            
+            // Quill 인스턴스를 DOM에 저장
+            mealsEditor._quill = mealsQuill;
+        }
+    }
+    
+    // 첫 번째 일정 항목 에디터 초기화
+    document.addEventListener('DOMContentLoaded', function() {
+        const firstSchedule = document.querySelector('.schedule-item');
+        if (firstSchedule) {
+            initScheduleEditors(firstSchedule);
+        }
+    });
+</script>
+
+<script src="../js/golf.js"></script>
 </body>
 </html>

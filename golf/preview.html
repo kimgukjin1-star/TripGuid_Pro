@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>골프 여행 안내문 미리보기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../fonts/custom-fonts.css">
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .preview-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 3rem;
+        }
+        .section-box {
+            background: #f8f9fa;
+            border-left: 4px solid;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+        .section-box.purple { border-color: #667eea; }
+        .section-box.blue { border-color: #3b82f6; }
+        .section-box.green { border-color: #10b981; }
+        .section-box.sky { border-color: #0ea5e9; }
+        .section-box.orange { border-color: #f59e0b; }
+        .section-box.pink { border-color: #ec4899; }
+        
+        .header-section {
+            text-align: center;
+            padding: 2rem 0;
+            border-bottom: 3px solid #667eea;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        .header-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.3;
+            border-radius: 12px;
+        }
+        
+        .share-buttons {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            padding: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            z-index: 1000;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        @media print {
+            .share-buttons, .no-print {
+                display: none !important;
+            }
+            body {
+                background: white;
+            }
+            .preview-card {
+                box-shadow: none;
+                margin: 0;
+            }
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #4b5563;
+        }
+        
+        .info-value {
+            color: #1f2937;
+        }
+        
+        /* Quill 에디터 콘텐츠 스타일 */
+        .ql-editor-content {
+            line-height: 1.6;
+        }
+        .ql-editor-content p {
+            margin-bottom: 0.5rem;
+        }
+        .ql-editor-content strong {
+            font-weight: bold;
+        }
+        .ql-editor-content em {
+            font-style: italic;
+        }
+        .ql-editor-content u {
+            text-decoration: underline;
+        }
+        .ql-editor-content s {
+            text-decoration: line-through;
+        }
+        .ql-editor-content h1 {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .ql-editor-content h2 {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .ql-editor-content h3 {
+            font-size: 1.25em;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .ql-editor-content ul, .ql-editor-content ol {
+            margin-left: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .ql-editor-content ul {
+            list-style-type: disc;
+        }
+        .ql-editor-content ol {
+            list-style-type: decimal;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-card" id="previewContent">
+        <div class="header-section">
+            <div class="text-6xl mb-4 text-purple-600">
+                <i class="fas fa-golf-ball"></i>
+            </div>
+            <h1 id="title" class="text-4xl font-bold text-gray-800 mb-2"></h1>
+            <p id="period" class="text-xl text-gray-600"></p>
+            <div id="titleImage" class="mt-4"></div>
+        </div>
+
+        <div id="contentArea"></div>
+    </div>
+
+    <div class="share-buttons no-print">
+        <button onclick="window.print()" class="btn btn-primary">
+            <i class="fas fa-print mr-2"></i>인쇄하기
+        </button>
+        <button onclick="goBack()" class="btn btn-secondary">
+            <i class="fas fa-edit mr-2"></i>수정하기
+        </button>
+        <button onclick="copyLink()" class="btn btn-secondary">
+            <i class="fas fa-link mr-2"></i>링크 복사
+        </button>
+        <button onclick="saveAsImage()" class="btn btn-primary">
+            <i class="fas fa-image mr-2"></i>고해상도 이미지 저장
+        </button>
+    </div>
+
+    <script src="../js/preview.js"></script>
+</body>
+</html>
