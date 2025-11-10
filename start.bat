@@ -1,4 +1,5 @@
 @echo off
+chcp 65001
 title Travel Guide System
 
 :: Start Tailwind CSS watch process in a new window
