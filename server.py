@@ -75,9 +75,12 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
             # Convert rows to list of dicts, parsing the 'data' field from JSON string
             results = []
             for row in rows:
-                item = dict(row)
-                item['data'] = json.loads(item['data'])
-                results.append(item)
+                results.append({
+                    'id': row['id'],
+                    'name': row['name'],
+                    'data': json.loads(row['data']),
+                    'savedAt': row['saved_at']
+                })
 
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
