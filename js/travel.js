@@ -123,7 +123,7 @@ function handleFormSubmit(e) {
     }
     try {
         const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(formData));
-        const previewUrl = `../golf/preview.html?data=${compressed}`;
+        const previewUrl = `preview.html?data=${compressed}`;
         window.open(previewUrl, '_blank');
     } catch (error) {
         console.error('미리보기 생성 오류:', error);
