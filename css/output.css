@@ -36,6 +36,9 @@
 .inline-block {
   display: inline-block;
 }
+.table {
+  display: table;
+}
 .max-h-\[80vh\] {
   max-height: 80vh;
 }
@@ -69,9 +72,6 @@
 .list-disc {
   list-style-type: disc;
 }
-.grid-cols-1 {
-  grid-template-columns: repeat(1, minmax(0, 1fr));
-}
 .flex-wrap {
   flex-wrap: wrap;
 }
@@ -83,9 +83,6 @@
 }
 .justify-center {
   justify-content: center;
-}
-.overflow-x-auto {
-  overflow-x: auto;
 }
 .overflow-y-auto {
   overflow-y: auto;
@@ -104,10 +101,6 @@
 .border-t {
   border-top-style: var(--tw-border-style);
   border-top-width: 1px;
-}
-.border-b {
-  border-bottom-style: var(--tw-border-style);
-  border-bottom-width: 1px;
 }
 .border-l-4 {
   border-left-style: var(--tw-border-style);
@@ -129,9 +122,6 @@
 }
 .text-left {
   text-align: left;
-}
-.uppercase {
-  text-transform: uppercase;
 }
 .italic {
   font-style: italic;
