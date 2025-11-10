@@ -9,6 +9,9 @@
 .relative {
   position: relative;
 }
+.static {
+  position: static;
+}
 .z-50 {
   z-index: 50;
 }
