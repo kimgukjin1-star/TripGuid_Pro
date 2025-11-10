@@ -1,7 +1,6 @@
 // JavaScript for travel-advanced.html
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 폼 ID를 travelForm으로 변경
     const form = document.getElementById('golfForm');
     if(form) form.id = 'travelForm';
 
@@ -16,13 +15,11 @@ function initializeDynamicFeatures() {
     updateRemoveButtons('.schedule-item', '.remove-schedule-item');
     document.getElementById('travelForm')?.addEventListener('submit', handleFormSubmit);
     
-    // 서버 연동 기능 (저장/불러오기)
     document.getElementById('saveButton')?.addEventListener('click', showSaveModal);
     document.getElementById('loadButton')?.addEventListener('click', showLoadModal);
     document.getElementById('saveTemplateButton')?.addEventListener('click', showSaveTemplateModal);
     document.getElementById('loadTemplateButton')?.addEventListener('click', showLoadTemplateModal);
 
-    // 모달 이벤트
     document.getElementById('confirmSave')?.addEventListener('click', handleSaveTrip);
     document.getElementById('cancelSave')?.addEventListener('click', () => hideModal('saveModal'));
     document.getElementById('closeLoad')?.addEventListener('click', () => hideModal('loadModal'));
@@ -50,13 +47,20 @@ function addScheduleItem() {
 
 function updateRemoveButtons(itemSelector, buttonSelector) {
     const items = document.querySelectorAll(itemSelector);
-    items.forEach(item => {
-        const removeBtn = item.querySelector(buttonSelector);
-        if (removeBtn) {
-            removeBtn.style.display = items.length > 1 ? 'block' : 'none';
-        }
-    });
+    const removeButtons = document.querySelectorAll(buttonSelector);
+    
+    // Hide all remove buttons initially
+    removeButtons.forEach(btn => btn.style.display = 'none');
+
+    // Show remove buttons only if there is more than one item
+    if (items.length > 1) {
+        items.forEach(item => {
+            const removeBtn = item.querySelector(buttonSelector);
+            if(removeBtn) removeBtn.style.display = 'block';
+        });
+    }
 }
+
 
 function handleImageUploadDelegation(event) {
     const target = event.target;
@@ -94,7 +98,7 @@ function initializeColorSync() {
     const colorPairs = [
         ['titleColor', 'titleColorHex'], ['periodColor', 'periodColorHex'],
         ['meetingColor', 'meetingColorHex'], ['flightColor', 'flightColorHex'],
-        ['teeupFont', 'teeupColor'], // Note: teeupFont is likely a typo in original, should be scheduleFont
+        ['teeupFont', 'teeupColor'],
         ['additionalColor', 'additionalColorHex'], ['companyColor', 'companyColorHex']
     ];
     colorPairs.forEach(([colorId, hexId]) => syncColorInputs(colorId, hexId));
@@ -139,7 +143,6 @@ function collectTravelFormData() {
             periodFont: getValue('periodFont'),
             periodFontSize: getValue('periodFontSize'),
             periodColor: getValue('periodColor'),
-            // ... other design fields
         },
         content: {
             title: getValue('title'),
@@ -184,7 +187,6 @@ function collectTravelFormData() {
     };
 }
 
-// --- 서버 연동 (Save/Load) ---
 function showModal(modalId) { document.getElementById(modalId)?.classList.remove('hidden'); document.getElementById(modalId)?.classList.add('flex'); }
 function hideModal(modalId) { document.getElementById(modalId)?.classList.add('hidden'); document.getElementById(modalId)?.classList.remove('flex'); }
 
@@ -199,12 +201,85 @@ function showSaveTemplateModal() {
 }
 
 async function showLoadModal() {
-    // This function would be similar to the one in golf.js but for travel data
-    alert('여행 안내문 불러오기 기능은 이 파일에서 별도 구현이 필요합니다.');
+    try {
+        const response = await fetch('/api/trips');
+        if (!response.ok) throw new Error('서버에서 목록을 불러오지 못했습니다.');
+        const trips = await response.json();
+        
+        const listContainer = document.getElementById('savedList');
+        listContainer.innerHTML = '';
+        
+        const travelTrips = trips.filter(trip => trip.data.type === 'travel');
+
+        if (travelTrips.length === 0) {
+            listContainer.innerHTML = '<p class="text-gray-500">저장된 여행 안내문이 없습니다.</p>';
+        } else {
+            travelTrips.forEach(trip => {
+                const item = document.createElement('div');
+                item.className = 'p-3 border rounded-lg flex justify-between items-center';
+                item.innerHTML = `
+                    <div>
+                        <p class="font-bold">${trip.name}</p>
+                        <p class="text-sm text-gray-500">저장일: ${new Date(trip.savedAt).toLocaleString()}</p>
+                    </div>
+                `;
+                const loadBtn = document.createElement('button');
+                loadBtn.textContent = '불러오기';
+                loadBtn.className = 'bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600';
+                loadBtn.onclick = () => {
+                    loadTravelFormData(trip.data);
+                    hideModal('loadModal');
+                    alert(`'${trip.name}' 안내문을 불러왔습니다.`);
+                };
+                item.appendChild(loadBtn);
+                listContainer.appendChild(item);
+            });
+        }
+        showModal('loadModal');
+    } catch (error) {
+        console.error('Error loading trips:', error);
+        alert(error.message);
+    }
 }
 
 async function showLoadTemplateModal() {
-    alert('여행 템플릿 불러오기 기능은 이 파일에서 별도 구현이 필요합니다.');
+    try {
+        const response = await fetch('/api/templates');
+        if (!response.ok) throw new Error('서버에서 템플릿 목록을 불러오지 못했습니다.');
+        const templates = await response.json();
+
+        const listContainer = document.getElementById('templateList');
+        listContainer.innerHTML = '';
+
+        if (templates.length === 0) {
+            listContainer.innerHTML = '<p class="text-gray-500">저장된 템플릿이 없습니다.</p>';
+        } else {
+            templates.forEach(template => {
+                const item = document.createElement('div');
+                item.className = 'p-3 border rounded-lg flex justify-between items-center';
+                item.innerHTML = `
+                    <div>
+                        <p class="font-bold">${template.name}</p>
+                        <p class="text-sm text-gray-500">저장일: ${new Date(template.savedAt).toLocaleString()}</p>
+                    </div>
+                `;
+                const loadBtn = document.createElement('button');
+                loadBtn.textContent = '적용하기';
+                loadBtn.className = 'bg-orange-500 text-white px-3 py-1 rounded-md hover:bg-orange-600';
+                loadBtn.onclick = () => {
+                    loadDesignTemplate(template.data.design);
+                    hideModal('templateLoadModal');
+                    alert(`'${template.name}' 템플릿을 적용했습니다.`);
+                };
+                item.appendChild(loadBtn);
+                listContainer.appendChild(item);
+            });
+        }
+        showModal('templateLoadModal');
+    } catch (error) {
+        console.error('Error loading templates:', error);
+        alert(error.message);
+    }
 }
 
 async function handleSaveTrip() {
@@ -238,7 +313,7 @@ async function handleSaveTemplate() {
     const formData = collectTravelFormData();
     const payload = {
         name: name,
-        data: { design: formData.design },
+        data: { design: formData.design, type: 'travel' },
         savedAt: new Date().toISOString()
     };
 
@@ -253,5 +328,75 @@ async function handleSaveTemplate() {
         hideModal('templateSaveModal');
     } catch (error) {
         alert(error.message);
+    }
+}
+
+function loadTravelFormData(data) {
+    if (data.design) {
+        loadDesignTemplate(data.design);
+    }
+    if (data.content) {
+        const content = data.content;
+        const setValue = (id, value) => {
+            const el = document.getElementById(id);
+            if (el) el.value = value || '';
+        };
+        const setSrc = (selector, src) => {
+            const el = document.querySelector(selector);
+            if (el && src) {
+                el.src = src;
+                el.parentElement.classList.remove('hidden');
+            }
+        };
+
+        setValue('title', content.title);
+        setSrc('#titleImagePreview img', content.titleImage);
+        setValue('startDate', content.startDate);
+        setValue('endDate', content.endDate);
+        setValue('meetingPlace', content.meetingPlace);
+        setValue('meetingDate', content.meetingDate);
+        setValue('meetingTime', content.meetingTime);
+        setSrc('#meetingImagePreview img', content.meetingImage);
+        
+        // ... and so on for all other fields
+        
+        // Load schedules
+        const scheduleContainer = document.getElementById('scheduleContainer');
+        scheduleContainer.innerHTML = ''; // Clear existing
+        if (content.schedules && content.schedules.length > 0) {
+            content.schedules.forEach(scheduleData => {
+                addScheduleItem();
+                const newItem = scheduleContainer.lastElementChild;
+                newItem.querySelector('.schedule-day').value = scheduleData.day;
+                newItem.querySelector('.schedule-date').value = scheduleData.date;
+                newItem.querySelector('.schedule-title').value = scheduleData.title;
+                newItem.querySelector('.schedule-detail').value = scheduleData.detail;
+                newItem.querySelector('.schedule-hotel').value = scheduleData.hotel;
+                newItem.querySelector('.schedule-meal').value = scheduleData.meal;
+                if (scheduleData.image) {
+                    const preview = newItem.querySelector('.schedule-image-preview');
+                    preview.querySelector('img').src = scheduleData.image;
+                    preview.classList.remove('hidden');
+                }
+            });
+        } else {
+            // Add one empty item if none are loaded
+            addScheduleItem();
+        }
+        updateRemoveButtons('.schedule-item', '.remove-schedule-item');
+    }
+}
+
+function loadDesignTemplate(design) {
+    if (!design) return;
+    for (const [key, value] of Object.entries(design)) {
+        const element = document.getElementById(key);
+        if (element) {
+            element.value = value;
+            if (element.type === 'color') {
+                const hexEl = document.getElementById(key + 'Hex');
+                if (hexEl) hexEl.value = value;
+            }
+        }
     }
 }
