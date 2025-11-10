@@ -1,0 +1,28 @@
+{
+  "name": "1",
+  "version": "1.0.0",
+  "description": "골프 여행과 일반 여행을 위한 전문적인 안내문을 쉽고 빠르게 작성할 수 있는 웹 기반 시스템입니다.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mikichat/1.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/mikichat/1/issues"
+  },
+  "homepage": "https://github.com/mikichat/1#readme",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.17",
+    "tailwindcss": "^4.1.17"
+  }
+}
